@@ -3383,6 +3383,7 @@ dependencies = [
     { name = "ragas" },
     { name = "rank-bm25" },
     { name = "streamlit" },
+    { name = "streamlit-mermaid" },
     { name = "tqdm" },
 ]
 
@@ -3410,6 +3411,7 @@ requires-dist = [
     { name = "ragas", specifier = ">=0.3.8" },
     { name = "rank-bm25", specifier = ">=0.2.2" },
     { name = "streamlit", specifier = ">=1.51.0" },
+    { name = "streamlit-mermaid", specifier = ">=0.2.0" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 
@@ -3845,6 +3847,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/59/6d/327ddd5fc35fcf2ae
 wheels = [
     { url = "https://files.pythonhosted.org/packages/39/60/868371b6482ccd9ef423c6f62650066cf8271fdb2ee84f192695ad6b7a96/streamlit-1.51.0-py3-none-any.whl", hash = "sha256:4008b029f71401ce54946bb09a6a3e36f4f7652cbb48db701224557738cfda38", size = 10171702, upload-time = "2025-10-29T17:07:35.97Z" },
 ]
+
+[[package]]
+name = "streamlit-mermaid"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "streamlit" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4b/d7/cfb2b1fdebc736cd22d31f5f87debf8550c3bf616ebd290a9c2bf7d7e0a6/streamlit-mermaid-0.2.0.tar.gz", hash = "sha256:a7883f63be991a378b2c327efae9a03ae49e830481659ae1a955bf68597f9c48", size = 3762617, upload-time = "2023-07-09T02:27:48.522Z" }
 
 [[package]]
 name = "sympy"

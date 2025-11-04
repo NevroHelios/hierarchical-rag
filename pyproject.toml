@@ -27,5 +27,6 @@ dependencies = [
     "ragas>=0.3.8",
     "rank-bm25>=0.2.2",
     "streamlit>=1.51.0",
+    "streamlit-mermaid>=0.2.0",
     "tqdm>=4.67.1",
 ]

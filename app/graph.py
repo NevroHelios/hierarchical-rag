@@ -39,12 +39,17 @@ def load_retrievers():
 
 def master_query_node(state: MasterAgentState) -> MasterAgentState:
     query = state['question']
+    
+    # Add execution metadata
+    print(f"[MASTER QUERY NODE] Processing question: {query}")
 
     prompt_master = master_query_generator_prompt + query
     
     initial_agent = llm.with_structured_output(MasterQuery)
     res = initial_agent.invoke(input=prompt_master)
     assert isinstance(res, MasterQuery), "Master query Failed"
+    
+    print(f"[MASTER QUERY NODE] Generated queries: {res.queries}")
     return {**state, 'queries': res.queries, 'contexts': [] }
 
 
@@ -52,9 +57,14 @@ def master_query_node(state: MasterAgentState) -> MasterAgentState:
 def worker_node(state: MasterAgentState, worker_name: Literal['clinic', 'research', 'book']):
     query = state["queries"].get(worker_name)
     if query is None:
+        print(f"[{worker_name.upper()} WORKER] No query assigned, skipping...")
         return {**state}
+    
+    print(f"[{worker_name.upper()} WORKER] Processing query: {query}")
     retriever = retrievers[worker_name]
     docs = retriever.invoke(query)
+    
+    print(f"[{worker_name.upper()} WORKER] Retrieved {len(docs)} documents")
     context_chunks = []
     for doc in docs:
         source_info = doc.metadata['source']
@@ -65,6 +75,8 @@ def worker_node(state: MasterAgentState, worker_name: Literal['clinic', 'researc
 
 def master_synthesizer_node(state: MasterAgentState) -> MasterAgentState:
     question = state["question"]
+    print(f"[MASTER SYNTHESIZER] Combining {len(state['contexts'])} contexts")
+    
     context_str = ""
     for agent_name, context in state['contexts']:
         context_str += f"--- Context from {agent_name} ---\n{context}\n\n"
@@ -84,6 +96,8 @@ def master_synthesizer_node(state: MasterAgentState) -> MasterAgentState:
     
     res = llm.invoke(prompt).content
     assert isinstance(res, str), "Final answer generation failed"
+    
+    print(f"[MASTER SYNTHESIZER] Generated answer of length {len(res)}")
     return {**state, "answer": res}
 
 def route_to_workers(state: MasterAgentState) -> List[str]:
@@ -135,3 +149,43 @@ def compile_graph():
     app = graph.compile()
 
     return app
+
+
+def get_graph_png():
+    """Generate PNG representation of the graph"""
+    try:
+        from langgraph.graph import StateGraph
+        import tempfile
+        
+        # Create a temporary graph for visualization
+        graph = StateGraph(MasterAgentState)
+        graph.set_entry_point('master_query')
+        graph.add_node("master_query", master_query_node)
+        graph.add_node('clinic', partial(worker_node, worker_name='clinic'))
+        graph.add_node('research', partial(worker_node, worker_name='research'))
+        graph.add_node('book', partial(worker_node, worker_name='book'))
+        graph.add_node('master_synthesizer', master_synthesizer_node)
+        
+        graph.add_conditional_edges(
+            "master_query",
+            route_to_workers,
+            {
+                'clinic': 'clinic',
+                'research': 'research',
+                'book': 'book'
+            }
+        )
+        
+        graph.add_edge('clinic', 'master_synthesizer')
+        graph.add_edge('research', 'master_synthesizer')
+        graph.add_edge('book', 'master_synthesizer')
+        graph.set_finish_point('master_synthesizer')
+        
+        app = graph.compile()
+        
+        # Get PNG representation
+        png_data = app.get_graph().draw_mermaid_png()
+        return png_data
+    except Exception as e:
+        print(f"Error generating graph PNG: {e}")
+        return None
