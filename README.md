@@ -1,3 +1,9 @@
+start qdrant
 ```
-uv run streamlit run app/main.py
+docker run -p 6333:6333 qdrant/qdrant
+```
+
+start the system
+```
+docker compose up --build
 ```
