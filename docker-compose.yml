@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+
+  master-agent:
+    build: ./src/services/master_agent
+    ports:
+      - "8080:8000"
+    environment:
+      - QUERY_SYNTHESIZER_URL=http://query-synthesizer:8000
+      - ANSWER_SYNTHESIZER_URL=http://answer-synthesizer:8000
+      - BOOKS_WORKER_URL=http://books-worker:8000
+      - CLINICAL_WORKER_URL=http://clinical-worker:8000
+      - PAPER_ABSTRACT_WORKER_URL=http://paper-abstract-worker:8000
+    depends_on:
+      - query-synthesizer
+      - answer-synthesizer
+      - books-worker
+      - clinical-worker
+      - paper-abstract-worker
+
+  query-synthesizer:
+    build: ./src/services/query_synthesizer
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+  answer-synthesizer:
+    build: ./src/services/answer_synthesizer
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+  books-worker:
+    build: ./src/services/workers/books
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+  clinical-worker:
+    build: ./src/services/workers/clinical
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+
+  paper-abstract-worker:
+    build: ./src/services/workers/paper_abstract
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}

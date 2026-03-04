@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+httpx
+groq
+python-dotenv
+pydantic
+qdrant_client
+transformers
+torch
