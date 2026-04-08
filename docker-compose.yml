@@ -2,6 +2,11 @@ version: '3.9'
 
 services:
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
   master-agent:
     build: ./src/services/master_agent
     ports:
@@ -12,7 +17,10 @@ services:
       - BOOKS_WORKER_URL=http://books-worker:8000
       - CLINICAL_WORKER_URL=http://clinical-worker:8000
       - PAPER_ABSTRACT_WORKER_URL=http://paper-abstract-worker:8000
+      - REDIS_URL=redis://redis:6379/0
+      - CACHE_TTL=3600
     depends_on:
+      - redis
       - query-synthesizer
       - answer-synthesizer
       - books-worker
