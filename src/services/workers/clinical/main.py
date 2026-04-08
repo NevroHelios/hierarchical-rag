@@ -26,18 +26,23 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-class Query(BaseModel):
-    query: str
+class StoreQuery(BaseModel):
+    dense_query: str
+    sparse_query: str
 
 
-@app.post("/query")
-def get_result(req: Query, request: Request):
+class RetrieveResponse(BaseModel):
+    context: str
+
+
+@app.post("/retrieve", response_model=RetrieveResponse)
+def get_result(req: StoreQuery, request: Request):
     encoder = request.app.state.encoder
     client = request.app.state.client
     assert encoder is not None
     assert client is not None
 
-    encoded_text = encoder(req.query)
+    encoded_text = encoder(req.dense_query)
     encoded_text = (
         encoded_text[0][0] if isinstance(encoded_text[0][0], list) else encoded_text[0]
     )
@@ -46,7 +51,7 @@ def get_result(req: Query, request: Request):
         collection_name="clinical_c",
         prefetch=[
             models.Prefetch(
-                query=models.Document(text=req.query, model="Qdrant/bm25"),
+                query=models.Document(text=req.sparse_query, model="Qdrant/bm25"),
                 using="sparse",
                 limit=20,
             ),
@@ -56,4 +61,6 @@ def get_result(req: Query, request: Request):
         limit=5,
     )
 
-    return hits
+    chunks = [point.payload.get("text", "") for point in hits.points if point.payload]
+    context = "\n\n".join(chunks)
+    return RetrieveResponse(context=context)

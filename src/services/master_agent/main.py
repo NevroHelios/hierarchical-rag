@@ -30,6 +30,13 @@ class UserQuery(BaseModel):
     query: str
 
 
+WORKER_CONFIG = {
+    "books": {"url": BOOKS_WORKER_URL, "label": "Books"},
+    "clinical": {"url": CLINICAL_WORKER_URL, "label": "Clinical"},
+    "paper_abstract": {"url": PAPER_ABSTRACT_WORKER_URL, "label": "Research"},
+}
+
+
 class MasterResponse(BaseModel):
     query: str
     answer: str
@@ -59,23 +66,26 @@ async def master_query(req: UserQuery):
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Query synthesizer failed: {e}")
 
-    books_payload = synthesized["books"]
-    clinical_payload = synthesized["clinical"]
-    paper_abstract_payload = synthesized["paper_abstract"]
+    selected_workers = synthesized.get("workers", list(WORKER_CONFIG.keys()))
 
-    books_ctx, clinical_ctx, paper_ctx = await asyncio.gather(
-        fetch_worker(client, BOOKS_WORKER_URL, books_payload),
-        fetch_worker(client, CLINICAL_WORKER_URL, clinical_payload),
-        fetch_worker(client, PAPER_ABSTRACT_WORKER_URL, paper_abstract_payload),
-    )
+    tasks = []
+    worker_labels = []
+    for worker_name in selected_workers:
+        if worker_name not in WORKER_CONFIG:
+            continue
+        config = WORKER_CONFIG[worker_name]
+        payload = synthesized.get(worker_name)
+        if not payload:
+            continue
+        tasks.append(fetch_worker(client, config["url"], payload))
+        worker_labels.append(config["label"])
+
+    results = await asyncio.gather(*tasks)
 
     combined_context = ""
-    if books_ctx:
-        combined_context += f"[Books]\n{books_ctx}\n\n"
-    if clinical_ctx:
-        combined_context += f"[Clinical]\n{clinical_ctx}\n\n"
-    if paper_ctx:
-        combined_context += f"[Research]\n{paper_ctx}\n\n"
+    for label, ctx in zip(worker_labels, results):
+        if ctx:
+            combined_context += f"[{label}]\n{ctx}\n\n"
 
     if not combined_context.strip():
         combined_context = "No relevant context was retrieved from any source."
