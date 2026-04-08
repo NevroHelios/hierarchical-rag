@@ -48,6 +48,7 @@ WORKER_CONFIG = {
 class MasterResponse(BaseModel):
     query: str
     answer: str
+    contexts: list[str] = []
 
 
 def build_cache_key(synthesized: dict) -> str:
@@ -109,9 +110,11 @@ async def master_query(req: UserQuery):
     results = await asyncio.gather(*tasks)
 
     combined_context = ""
+    retrieved_contexts = []
     for label, ctx in zip(worker_labels, results):
         if ctx:
             combined_context += f"[{label}]\n{ctx}\n\n"
+            retrieved_contexts.append(f"[{label}]\n{ctx}")
 
     if not combined_context.strip():
         combined_context = "No relevant context was retrieved from any source."
@@ -128,4 +131,4 @@ async def master_query(req: UserQuery):
 
     await r.set(cache_key, answer, ex=CACHE_TTL)
 
-    return MasterResponse(query=req.query, answer=answer)
+    return MasterResponse(query=req.query, answer=answer, contexts=retrieved_contexts)

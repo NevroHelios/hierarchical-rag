@@ -1,0 +1,28 @@
+{
+    "questions" : [
+        "What was the primary goal of the Effects of Sitagliptin on Endothelial Function in Type 2 Diabetes study?",
+        "How long were patients treated with sitagliptin and placebo in the sitagliptin trial?",
+        "What was the purpose of the Set-Point Study involving the bionic pancreas?",
+        "What were the main outcomes measured in the Set-Point Study?",
+        "What was evaluated in the LX4211 and Metformin Interaction Study?",
+        "According to the VA Whole Health recommendations, how much can a low glycemic index diet reduce HbA1c levels?",
+        "What are the key dietary principles of the Mediterranean diet for managing type 2 diabetes?",
+        "What percentage of weight loss is recommended to improve insulin action in type 2 diabetes patients?",
+        "Which supplements are generally recommended routinely for overall health in diabetic patients?",
+        "What lifestyle recommendations are given to manage blood glucose through exercise?"
+    ],
+    "ground_truths" : [
+        "The primary goal was to determine whether sitagliptin, a DPP-4 inhibitor, acutely and chronically improves blood vessel function in patients with type 2 diabetes on metformin.",
+        "Patients received sitagliptin for 8 weeks and a matching placebo for another 8 weeks, separated by a 4-week washout period.",
+        "The Set-Point Study aimed to evaluate how changing glucose targets affects the performance of a bi-hormonal bionic pancreas in managing glucose levels and preventing hypoglycemia.",
+        "Main outcomes included mean CGM glucose levels, percentage of time spent in hypoglycemia (<60 mg/dl), and insulin/glucagon dosing during exercise visits.",
+        "The LX4211 and Metformin Interaction Study assessed how LX4211 and metformin affect each other’s plasma concentrations when taken together as single doses.",
+        "A low glycemic index (GI) diet can reduce hemoglobin A1c (HbA1c) by approximately 0.4%–0.5%.",
+        "The Mediterranean diet emphasizes reducing pro-inflammatory fats, increasing omega-3 intake, and consuming more plant-based, anti-inflammatory foods, potentially reducing diabetes incidence by up to 83%.",
+        "A 5% weight loss from baseline body weight is recommended to improve insulin sensitivity, lower fasting blood glucose, and reduce medication dependence.",
+        "Fiber, fish oil, and vitamin D are routinely recommended supplements for diabetic patients to support overall metabolic and cardiovascular health.",
+        "Patients are encouraged to perform at least 30 minutes of physical activity daily, including walking or resistance exercises, to improve insulin use, control glucose, and prevent complications."
+    ]
+}
+
+
